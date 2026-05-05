@@ -22,7 +22,7 @@ app.post("/crear-envio", async (req, res) => {
     const page = await browser.newPage();
 
     // ACÁ DESPUÉS PONEMOS LA WEB REAL DE DAC
-    await page.goto("https://clientes.dac.com.uy/", {
+    await page.goto("https://www.dac.com.uy/usuarios/login", {
       waitUntil: "networkidle2"
     });
 
