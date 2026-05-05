@@ -21,15 +21,31 @@ app.post("/crear-envio", async (req, res) => {
 
     const page = await browser.newPage();
 
-    // ACÁ DESPUÉS PONEMOS LA WEB REAL DE DAC
-    await page.goto("https://www.dac.com.uy/usuarios/login", {
-      waitUntil: "networkidle2"
-    });
+   await page.goto("https://www.dac.com.uy/usuarios/login", {
+  waitUntil: "networkidle2"
+});
 
-    // ESTO HAY QUE AJUSTARLO CON LOS SELECTORES REALES
-    // await page.type("#usuario", process.env.DAC_USER);
-    // await page.type("#password", process.env.DAC_PASS);
-    // await page.click("#login");
+await page.waitForSelector('input[type="text"]', { timeout: 15000 });
+await page.waitForSelector('input[type="password"]', { timeout: 15000 });
+
+await page.type('input[type="text"]', process.env.DAC_USER, { delay: 50 });
+await page.type('input[type="password"]', process.env.DAC_PASS, { delay: 50 });
+
+await Promise.all([
+  page.waitForNavigation({ waitUntil: "networkidle2" }),
+  page.click('button[type="submit"]')
+]);
+
+// 🔥 AGREGÁ ESTO PARA DEBUG
+console.log("Login hecho");
+
+// 🔥 NO cierres todavía
+// await browser.close();
+
+res.json({
+  success: true,
+  message: "Login ejecutado correctamente"
+});
 
     await browser.close();
 
