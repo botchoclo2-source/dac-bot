@@ -46,7 +46,7 @@ await page.type('input[type="password"]', process.env.DAC_PASS, { delay: 50 });
 
 await page.keyboard.press("Enter");
 
-await new Promise(resolve => setTimeout(resolve, 7000));
+await new Promise(resolve => setTimeout(resolve, 2000));
 
 const urlActual = page.url();
 
@@ -56,7 +56,7 @@ await browser.close();
 
 return res.json({
   success: true,
-  message: "Login intentado",
+  message: "Login intentado rápido",
   titulo,
   url_actual: urlActual
 });
