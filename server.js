@@ -16,45 +16,51 @@ app.post("/crear-envio", async (req, res) => {
   try {
     browser = await puppeteer.launch({
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu"
+      ]
     });
 
     const page = await browser.newPage();
 
-    page.setDefaultTimeout(15000);
-    page.setDefaultNavigationTimeout(20000);
-
-    await page.setViewport({
-      width: 1366,
-      height: 768
-    });
+    await page.setViewport({ width: 1366, height: 768 });
 
     await page.goto("https://www.dac.com.uy/usuarios/login", {
-      waitUntil: "load",
+      waitUntil: "networkidle2",
       timeout: 0
     });
 
-    const titulo = await page.title();
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
-    const inputs = await page.$$eval("input", els =>
+    const titulo = await page.title();
+    const url = page.url();
+
+    const bodyText = await page.evaluate(() => document.body.innerText);
+
+    const inputs = await page.$$eval("input, textarea, [contenteditable='true']", els =>
       els.map((el, i) => ({
         index: i,
-        type: el.type,
-        name: el.name,
-        id: el.id,
-        placeholder: el.placeholder,
-        value: el.value
+        tag: el.tagName,
+        type: el.getAttribute("type"),
+        name: el.getAttribute("name"),
+        id: el.getAttribute("id"),
+        placeholder: el.getAttribute("placeholder"),
+        aria: el.getAttribute("aria-label"),
+        class: el.getAttribute("class")
       }))
     );
 
-    const buttons = await page.$$eval("button, input[type='submit'], a", els =>
-      els.slice(0, 30).map((el, i) => ({
+    const buttons = await page.$$eval("button, [role='button'], input[type='submit'], a", els =>
+      els.slice(0, 50).map((el, i) => ({
         index: i,
         tag: el.tagName,
-        type: el.type || "",
-        text: el.innerText || el.value || "",
-        id: el.id,
-        class: el.className,
+        type: el.getAttribute("type"),
+        text: (el.innerText || el.value || "").trim(),
+        id: el.getAttribute("id"),
+        class: el.getAttribute("class"),
         href: el.href || ""
       }))
     );
@@ -63,22 +69,20 @@ app.post("/crear-envio", async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Debug login DAC",
+      message: "Debug avanzado DAC",
       titulo,
+      url,
       pedido,
       nombre,
       direccion,
       telefono,
+      bodyText: bodyText.slice(0, 1000),
       inputs,
       buttons
     });
 
   } catch (error) {
-    console.error("ERROR EN BOT:", error.message);
-
-    if (browser) {
-      await browser.close();
-    }
+    if (browser) await browser.close();
 
     return res.status(500).json({
       success: false,
@@ -88,7 +92,4 @@ app.post("/crear-envio", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Servidor online en puerto ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Servidor online en puerto ${PORT}`));
