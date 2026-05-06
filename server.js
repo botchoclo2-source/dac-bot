@@ -30,7 +30,7 @@ app.post("/crear-envio", async (req, res) => {
 
     await page.goto("https://www.dac.com.uy/usuarios/login", {
       waitUntil: "networkidle2",
-      timeout: 2000
+      timeout: 20000
     });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
