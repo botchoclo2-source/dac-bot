@@ -25,58 +25,52 @@ app.post("/crear-envio", async (req, res) => {
     page.setDefaultNavigationTimeout(20000);
 
     await page.setViewport({
-  width: 1366,
-  height: 768
-});
+      width: 1366,
+      height: 768
+    });
 
-await page.goto("https://www.dac.com.uy/usuarios/login", {
-  waitUntil: "load",
-  timeout: 0
-});
+    await page.goto("https://www.dac.com.uy/usuarios/login", {
+      waitUntil: "load",
+      timeout: 0
+    });
 
-const titulo = await page.title();
+    const titulo = await page.title();
 
-console.log("Página cargada:", titulo);
+    const inputs = await page.$$eval("input", els =>
+      els.map((el, i) => ({
+        index: i,
+        type: el.type,
+        name: el.name,
+        id: el.id,
+        placeholder: el.placeholder,
+        value: el.value
+      }))
+    );
 
-await page.waitForSelector('input[type="text"]', { timeout: 15000 });
-await page.waitForSelector('input[type="password"]', { timeout: 15000 });
-
-await page.type('input[type="text"]', process.env.DAC_USER, { delay: 50 });
-await page.type('input[type="password"]', process.env.DAC_PASS, { delay: 50 });
-
-await page.keyboard.press("Enter");
-
-await new Promise(resolve => setTimeout(resolve, 2000));
-
-const urlActual = page.url();
-
-console.log("URL después del login:", urlActual);
-
-await browser.close();
-
-return res.json({
-  success: true,
-  message: "Login intentado rápido",
-  titulo,
-  url_actual: urlActual
-});
-
-    console.log("Pedido recibido:", pedido);
-    console.log("Cliente:", nombre);
-    console.log("Dirección:", direccion);
-    console.log("Teléfono:", telefono);
-    console.log("URL después del login:", urlActual);
+    const buttons = await page.$$eval("button, input[type='submit'], a", els =>
+      els.slice(0, 30).map((el, i) => ({
+        index: i,
+        tag: el.tagName,
+        type: el.type || "",
+        text: el.innerText || el.value || "",
+        id: el.id,
+        class: el.className,
+        href: el.href || ""
+      }))
+    );
 
     await browser.close();
 
     return res.json({
       success: true,
-      message: "Login intentado",
-      url_actual: urlActual,
+      message: "Debug login DAC",
+      titulo,
       pedido,
       nombre,
       direccion,
-      telefono
+      telefono,
+      inputs,
+      buttons
     });
 
   } catch (error) {
