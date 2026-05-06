@@ -35,7 +35,7 @@ app.post("/crear-envio", async (req, res) => {
     await page.type('input[type="text"]', process.env.DAC_USER, { delay: 50 });
     await page.type('input[type="password"]', process.env.DAC_PASS, { delay: 50 });
 
-    await page.click('button[type="submit"]');
+    await page.keyboard.press("Enter");
 
     await new Promise(resolve => setTimeout(resolve, 5000));
 
