@@ -21,46 +21,38 @@ app.post("/crear-envio", async (req, res) => {
 
     const page = await browser.newPage();
 
-   await page.goto("https://www.dac.com.uy/usuarios/login", {
-  waitUntil: "networkidle2"
-});
+    page.setDefaultTimeout(15000);
+    page.setDefaultNavigationTimeout(20000);
 
-await page.waitForSelector('input[type="text"]', { timeout: 15000 });
-await page.waitForSelector('input[type="password"]', { timeout: 15000 });
+    await page.goto("https://www.dac.com.uy/usuarios/login", {
+      waitUntil: "domcontentloaded",
+      timeout: 20000
+    });
 
-await page.type('input[type="text"]', process.env.DAC_USER, { delay: 50 });
-await page.type('input[type="password"]', process.env.DAC_PASS, { delay: 50 });
+    await page.waitForSelector('input[type="text"]', { timeout: 15000 });
+    await page.waitForSelector('input[type="password"]', { timeout: 15000 });
 
-await page.click('button[type="submit"]');
+    await page.type('input[type="text"]', process.env.DAC_USER, { delay: 50 });
+    await page.type('input[type="password"]', process.env.DAC_PASS, { delay: 50 });
 
-await new Promise(resolve => setTimeout(resolve, 8000));
+    await page.click('button[type="submit"]');
 
-console.log("URL después del login:", page.url());
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
-res.json({
-  success: true,
-  message: "Login intentado",
-  url_actual: page.url()
-});
+    const urlActual = page.url();
 
-return;
-
-// 🔥 AGREGÁ ESTO PARA DEBUG
-console.log("Login hecho");
-
-// 🔥 NO cierres todavía
-// await browser.close();
-
-res.json({
-  success: true,
-  message: "Login ejecutado correctamente"
-});
+    console.log("Pedido recibido:", pedido);
+    console.log("Cliente:", nombre);
+    console.log("Dirección:", direccion);
+    console.log("Teléfono:", telefono);
+    console.log("URL después del login:", urlActual);
 
     await browser.close();
 
-    res.json({
+    return res.json({
       success: true,
-      message: "Bot funcionando. Falta mapear pantalla real de DAC.",
+      message: "Login intentado",
+      url_actual: urlActual,
       pedido,
       nombre,
       direccion,
@@ -68,9 +60,13 @@ res.json({
     });
 
   } catch (error) {
-    if (browser) await browser.close();
+    console.error("ERROR EN BOT:", error.message);
 
-    res.status(500).json({
+    if (browser) {
+      await browser.close();
+    }
+
+    return res.status(500).json({
       success: false,
       error: error.message
     });
@@ -78,4 +74,7 @@ res.json({
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor online en puerto ${PORT}`));
+
+app.listen(PORT, () => {
+  console.log(`Servidor online en puerto ${PORT}`);
+});
