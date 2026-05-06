@@ -38,12 +38,27 @@ const titulo = await page.title();
 
 console.log("Página cargada:", titulo);
 
+await page.waitForSelector('input[type="text"]', { timeout: 15000 });
+await page.waitForSelector('input[type="password"]', { timeout: 15000 });
+
+await page.type('input[type="text"]', process.env.DAC_USER, { delay: 50 });
+await page.type('input[type="password"]', process.env.DAC_PASS, { delay: 50 });
+
+await page.keyboard.press("Enter");
+
+await new Promise(resolve => setTimeout(resolve, 7000));
+
+const urlActual = page.url();
+
+console.log("URL después del login:", urlActual);
+
 await browser.close();
 
 return res.json({
   success: true,
-  message: "Página DAC cargada",
-  titulo
+  message: "Login intentado",
+  titulo,
+  url_actual: urlActual
 });
 
     console.log("Pedido recibido:", pedido);
