@@ -25,21 +25,21 @@ app.post("/crear-envio", async (req, res) => {
     page.setDefaultNavigationTimeout(20000);
 
     await page.goto("https://www.dac.com.uy/usuarios/login", {
-      waitUntil: "domcontentloaded",
-      timeout: 20000
-    });
+  waitUntil: "domcontentloaded",
+  timeout: 10000
+});
 
-    await page.waitForSelector('input[type="text"]', { timeout: 15000 });
-    await page.waitForSelector('input[type="password"]', { timeout: 15000 });
+const titulo = await page.title();
 
-    await page.type('input[type="text"]', process.env.DAC_USER, { delay: 50 });
-    await page.type('input[type="password"]', process.env.DAC_PASS, { delay: 50 });
+console.log("Página cargada:", titulo);
 
-    await page.keyboard.press("Enter");
+await browser.close();
 
-    await new Promise(resolve => setTimeout(resolve, 5000));
-
-    const urlActual = page.url();
+return res.json({
+  success: true,
+  message: "Página DAC cargada",
+  titulo
+});
 
     console.log("Pedido recibido:", pedido);
     console.log("Cliente:", nombre);
