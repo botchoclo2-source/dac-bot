@@ -24,9 +24,14 @@ app.post("/crear-envio", async (req, res) => {
     page.setDefaultTimeout(15000);
     page.setDefaultNavigationTimeout(20000);
 
-    await page.goto("https://www.dac.com.uy/usuarios/login", {
-  waitUntil: "domcontentloaded",
-  timeout: 10000
+    await page.setViewport({
+  width: 1366,
+  height: 768
+});
+
+await page.goto("https://www.dac.com.uy/usuarios/login", {
+  waitUntil: "load",
+  timeout: 0
 });
 
 const titulo = await page.title();
