@@ -31,10 +31,19 @@ await page.waitForSelector('input[type="password"]', { timeout: 15000 });
 await page.type('input[type="text"]', process.env.DAC_USER, { delay: 50 });
 await page.type('input[type="password"]', process.env.DAC_PASS, { delay: 50 });
 
-await Promise.all([
-  page.waitForNavigation({ waitUntil: "networkidle2" }),
-  page.click('button[type="submit"]')
-]);
+await page.click('button[type="submit"]');
+
+await new Promise(resolve => setTimeout(resolve, 8000));
+
+console.log("URL después del login:", page.url());
+
+res.json({
+  success: true,
+  message: "Login intentado",
+  url_actual: page.url()
+});
+
+return;
 
 // 🔥 AGREGÁ ESTO PARA DEBUG
 console.log("Login hecho");
